@@ -1,6 +1,6 @@
 // *** Assets ***
 
-export type Hotel =
+export type IHotel =
   | "A" // American
   | "C" // Continental
   | "F" // Festival
@@ -9,75 +9,75 @@ export type Hotel =
   | "T" // Tower
   | "W"; // Worldwide
 
-export interface Cell {
+export interface ICell {
   key: string; // Possible values from '1A' to '12I'
   hasTile: boolean;
-  hotel: Hotel | null;
+  hotel: IHotel | null;
 }
 
 export interface Board {
-  cells: Record<string, Cell>; // Record key is cell key
+  cells: Record<string, ICell>; // Record key is cell key
 }
 
-export interface AssetHolder {
-  shares: Record<Hotel, number>;
+export interface IAssetHolder {
+  shares: Record<IHotel, number>;
   tiles: string[]; // Possible values from '1A' to '12I'
 }
 
-export interface Bank extends AssetHolder {
-  hotels: Hotel[];
+export interface IBank extends IAssetHolder {
+  hotels: IHotel[];
 }
 
-export interface Player extends AssetHolder {
+export interface IPlayer extends IAssetHolder {
   id: string;
   money: number;
 }
 
 // *** Actions ***
 
-export interface Action {
+export interface IAction {
   name: string;
   playerIndex: number;
 }
 
-export interface PlayTileAction extends Action {
+export interface IPlayTileAction extends IAction {
   name: "playTile";
 }
 
-export interface MakeHotelAction extends Action {
+export interface IMakeHotelAction extends IAction {
   name: "makeHotel";
   triggerTile: string;
 }
 
-export interface MergeHotelsAction extends Action {
+export interface IMergeHotelsAction extends IAction {
   name: "mergeHotels";
   triggerTile: string;
 }
 
-export interface DecideMergeOrderAction extends Action {
+export interface IDecideMergeOrderAction extends IAction {
   name: "decideMergeOrder";
   triggerTile: string;
 }
 
-export interface DecideOnShares extends Action {
+export interface IDecideOnShares extends IAction {
   name: "decideOnShares";
-  hotel: Hotel;
+  hotel: IHotel;
 }
 
-export interface BuySharesAction extends Action {
+export interface IBuySharesAction extends IAction {
   name: "buyShares";
 }
 
-export interface DrawTileAction extends Action {
+export interface IDrawTileAction extends IAction {
   name: "drawTile";
 }
 
 /// *** Game (combining assets and actions) ***
 
-export interface Game {
+export interface IGame {
   board: Board;
-  bank: Bank;
-  players: Player[];
+  bank: IBank;
+  players: IPlayer[];
   turnPlayerIndex: number;
-  actionStack: Action[];
+  actionStack: IAction[];
 }
