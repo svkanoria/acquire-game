@@ -1,3 +1,18 @@
+# Acquire Game
+
+## Tooling Setup
+
+1. Add `/.idea` to .gitignore
+1. Setup prettier
+    1. yarn add --dev --exact prettier eslint-config-prettier
+    1. `echo {}> .prettierrc.json`
+    1. `touch .prettierignore` then copy over contents of .gitignore
+    1. `touch .eslintrc.js` then extend CRA's rules with prettier (see contents of file)
+    1. `prettier --write src` to reformat all files
+    1. Configure WebStorm to use prettier: Settings > search for prettier > set path to package and run on save
+
+---
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
