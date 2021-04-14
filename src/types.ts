@@ -15,6 +15,11 @@ export interface ICell {
   hotel: IHotel | null;
 }
 
+export interface ICellCoords {
+  x: number; // 0 => row 1
+  y: number; // 0 => column 'A'
+}
+
 export interface Board {
   cells: Record<string, ICell>; // Record key is cell key
 }
