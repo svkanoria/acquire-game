@@ -20,7 +20,7 @@ export interface ICellCoords {
   y: number; // 0 => column 'A'
 }
 
-export interface Board {
+export interface IBoard {
   cells: Record<string, ICell>; // Record key is cell key
 }
 
@@ -80,7 +80,7 @@ export interface IDrawTileAction extends IAction {
 /// *** Game (combining assets and actions) ***
 
 export interface IGame {
-  board: Board;
+  board: IBoard;
   bank: IBank;
   players: IPlayer[];
   turnPlayerIndex: number;
