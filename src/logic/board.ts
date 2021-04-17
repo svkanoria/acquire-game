@@ -1,6 +1,39 @@
-import { IBoard, IHotel } from "../types";
-import R from "remeda";
+import { IBoard, ICell, IHotel } from "../types";
+import * as R from "remeda";
 import { Cell } from "./cell";
+import { RExt } from "../remedaExtension";
+
+const makeBoard = (): IBoard => {
+  return {
+    cells: R.pipe(
+      R.range(0, 12).map((x) =>
+        R.range(0, 9).map((y) => ({
+          x,
+          y,
+        }))
+      ),
+      R.flatten(),
+      R.map(Cell.getKey),
+      R.mapToObj((key) => [key, { key, hasTile: false, hotel: null }])
+    ),
+  };
+};
+
+const mapAllCells = (f: (cell: ICell) => ICell) => (board: IBoard): IBoard => {
+  return { ...board, cells: R.mapValues(board.cells, f) };
+};
+
+const mapCells = (fs: Record<string, (cell: ICell) => ICell>) =>
+  mapAllCells((cell: ICell) => (fs[cell.key] ?? R.identity)(cell));
+
+const mapCell = (cellKey: string, f: (cell: ICell) => ICell) => (
+  board: IBoard
+): IBoard => {
+  return {
+    ...board,
+    cells: { ...board.cells, [cellKey]: f(board.cells[cellKey]) },
+  };
+};
 
 const getNeighbouringHotels = (cellKey: string) => (
   board: IBoard
@@ -25,25 +58,41 @@ const getHotelSizes = (board: IBoard): Record<IHotel, number> => {
   );
 };
 
-const getNeighbouringHotelSizes = (cellKey: string) => (
-  board: IBoard
-): Record<IHotel, number> => {
-  return R.pick(getHotelSizes(board), getNeighbouringHotels(cellKey)(board));
+const placeTile = (cellKey: string) => (board: IBoard) => {
+  let mBoard = board;
+  mBoard = mapCell(cellKey, Cell.placeTile)(mBoard);
+  const neighbouringHotels = getNeighbouringHotels(cellKey)(mBoard);
+  if (neighbouringHotels.length === 1) {
+    mBoard = mapCell(cellKey, Cell.assignHotel(neighbouringHotels[0]))(mBoard);
+  } else if (neighbouringHotels.length > 1) {
+    const tooLargeNeighbouringHotels = R.pipe(
+      getHotelSizes(mBoard),
+      R.pick(neighbouringHotels),
+      RExt.pickBy((size) => size >= 11)
+    );
+    if (Object.values(tooLargeNeighbouringHotels).length > 1) {
+      throw new Error(
+        `Unplayable merging tile ${cellKey}. Hotels ${Object.keys(
+          tooLargeNeighbouringHotels
+        ).join(", ")} are too large, they have sizes ${Object.values(
+          tooLargeNeighbouringHotels
+        ).join(", ")} respectively.`
+      );
+    }
+  }
+  return mBoard;
 };
 
-const placeTile = (tile: string) => (board: IBoard) => {
-  board.cells = {
-    ...board.cells,
-    tile: { ...board.cells[tile], hasTile: true },
-  };
-  const neighbouringHotels = getNeighbouringHotels(tile)(board);
-  if (neighbouringHotels.length === 1) {
-    board.cells = {
-      ...board.cells,
-      tile: { ...board.cells[tile], hotel: neighbouringHotels[0] },
-    };
-  } else if (neighbouringHotels.length > 1) {
-    const neighbouringHotelSizes = getNeighbouringHotelSizes(tile)(board);
-    // More to be added
-  }
+const removeHotel = (hotel: IHotel) =>
+  mapAllCells((cell) =>
+    cell.hotel === hotel ? Cell.assignHotel(null)(cell) : cell
+  );
+
+export const Board = {
+  makeBoard,
+  mapAllCells,
+  mapCells,
+  mapCell,
+  placeTile,
+  removeHotel,
 };

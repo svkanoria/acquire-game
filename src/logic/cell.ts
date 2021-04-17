@@ -1,12 +1,21 @@
 import { ICell, ICellCoords, IHotel } from "../types";
+import { RExt } from "../remedaExtension";
 
 const placeTile = (cell: ICell): ICell => {
   return { ...cell, hasTile: true };
 };
 
 const assignHotel = (hotel: IHotel | null) => (cell: ICell): ICell => {
+  if (!cell.hasTile) {
+    throw new Error(
+      `Cell ${cell.key} has no tile, so cannot assign a hotel to it`
+    );
+  }
   return { ...cell, hotel };
 };
+
+const placeTileAndAssignHotel = (hotel: IHotel) =>
+  RExt.compose(assignHotel(hotel), placeTile);
 
 const getNeighbouringKey = (dx: number, dy: number) => (
   key: string
@@ -49,6 +58,7 @@ const getNeighbouringKeys = (key: string) => {
 export const Cell = {
   placeTile,
   assignHotel,
+  placeTileAndAssignHotel,
   getCoords,
   getKey,
   getNeighbouringKeys,
