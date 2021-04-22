@@ -1,7 +1,6 @@
 import * as R from "remeda";
 import { Board } from "./board";
 import { Cell } from "./cell";
-import { RExt } from "../remedaExtension";
 
 test("makeBoard", () => {
   const board = Board.makeBoard();
